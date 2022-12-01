@@ -90,7 +90,9 @@ int main(int argc, char** argv)
                                          tte_write("\n");
                                      });
 
-    while (1) ;
+
+
+    while (1) ; // this is a gba, don't return from main!
 
     return 0;
 }
