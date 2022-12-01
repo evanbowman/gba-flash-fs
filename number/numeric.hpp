@@ -29,14 +29,6 @@ namespace flash_filesystem
 {
 
 
-#if defined(__GBA__) or defined(__NDS__)
-template <typename T> using Atomic = T;
-#else
-#include <atomic>
-template <typename T> using Atomic = std::atomic<T>;
-#endif
-
-
 
 inline u8 count_ones(u8 byte)
 {

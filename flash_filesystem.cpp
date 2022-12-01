@@ -65,13 +65,14 @@ void arabic__to_string(int num, char* buffer, int base)
 
     buffer[i] = '\0';
 
-    str_reverse(buffer, i);
+    flash_filesystem::str_reverse(buffer, i);
 
     return;
 }
 
 
-template <u32 length> StringBuffer<length> to_string(int num)
+template <flash_filesystem::u32 length>
+flash_filesystem::StringBuffer<length> to_string(int num)
 {
     char temp[length];
     arabic__to_string(num, temp, 10);
@@ -81,11 +82,15 @@ template <u32 length> StringBuffer<length> to_string(int num)
 
 
 
-StringBuffer<12> stringify(s32 num)
+flash_filesystem::StringBuffer<12> stringify(flash_filesystem::s32 num)
 {
     return to_string<12>(num);
 }
 
+
+
+namespace flash_filesystem
+{
 
 // Test harness for non-gba backtesting
 class Platform
@@ -172,6 +177,9 @@ public:
 private:
     std::vector<uint8_t> data_;
 };
+
+}
+
 
 #else
 #include "platform/platform.hpp"
