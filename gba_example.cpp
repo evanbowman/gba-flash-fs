@@ -63,19 +63,22 @@ int main(int argc, char** argv)
     flash_filesystem::unlink_file(pfrm, "/chars/uppercase.txt");
 
 
-    flash_filesystem::Vector<char> output;
+    flash_filesystem::Vector<char> buffer;
     for (int i = 0; i < 26; ++i) {
-        output.push_back('a' + i);
+        buffer.push_back('a' + i);
     }
 
-    flash_filesystem::store_file_data_text(pfrm, "/chars/alphabet.txt", output);
+    flash_filesystem::store_file_data_text(pfrm, "/chars/alphabet.txt", buffer);
 
-    output.clear();
-    for (int i = 0; i < 26; ++i) {
-        output.push_back('A' + i);
+    buffer.clear();
+
+
+
+    flash_filesystem::read_file_data_text(pfrm, "/chars/alphabet.txt", buffer);
+    for (char& c : buffer) {
+        c -= 'a' - 'A';
     }
-
-    flash_filesystem::store_file_data_text(pfrm, "/chars/uppercase.txt", output);
+    flash_filesystem::store_file_data_text(pfrm, "/chars/uppercase.txt", buffer);
 
 
     if (flash_filesystem::file_size(pfrm, "/chars/uppercase.txt") == 26) {
