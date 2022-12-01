@@ -1,7 +1,10 @@
 #pragma once
 
 
-#include "number/int.h"
+#include "number/int.hpp"
+
+
+using namespace flash_filesystem;
 
 
 #define REG_BASE 0x04000000

@@ -34,6 +34,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+namespace flash_filesystem
+{
+
+
+
 class Platform
 {
 public:
@@ -52,3 +57,7 @@ public:
     ~Platform();
 
 };
+
+
+
+}

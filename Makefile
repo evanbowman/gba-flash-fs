@@ -5,13 +5,21 @@ FLAGS = -mthumb -mthumb-interwork -mcpu=arm7tdmi -mtune=arm7tdmi -D__GBA__ -fno-
 
 
 
-all: gba-static regression
+all: gba-static gba-example regression
 
 
 gba-static:
 	@echo Build GBA Static Library
 	${GBA_ARM_CC} -I ./ ${FLAGS} -c flash_filesystem.cpp platform/gba/gba_platform.cpp platform/gba/bootleg_cart.cpp
+	rm -f libGbaFlash.a
+	${GBA_ARM_AR} qc libGbaFlash.a flash_filesystem.o gba_platform.o bootleg_cart.o
 	@echo Done!
+
+
+gba-example: gba-static
+	${GBA_ARM_CC} -I ./ ${FLAGS} gba_example.cpp libGbaFlash.a ${DEVKITPRO}/libtonc/lib/libtonc.a -specs=gba.specs -o GbaExample
+	${DEVKITARM}/bin/arm-none-eabi-objcopy -O binary GbaExample GbaFlash.gba
+	${DEVKITPRO}/tools/bin/gbafix GbaFlash.gba
 
 
 regression:
@@ -23,4 +31,4 @@ regression:
 
 
 clean:
-	rm *.o
+	rm -f *.o *.a *.regr_output *.sav

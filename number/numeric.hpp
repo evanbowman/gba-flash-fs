@@ -22,8 +22,11 @@
 
 #pragma once
 
-#include "int.h"
+#include "int.hpp"
 #include <ciso646> // For MSVC. What an inept excuse for a compiler.
+
+namespace flash_filesystem
+{
 
 
 #if defined(__GBA__) or defined(__NDS__)
@@ -234,4 +237,8 @@ inline s32 parse_int(const char* str, u32 len)
         n = n * 10 + (str[i] - '0');
     }
     return n;
+}
+
+
+
 }

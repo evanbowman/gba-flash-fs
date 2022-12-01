@@ -28,6 +28,11 @@
 #include <new>
 
 
+namespace flash_filesystem
+{
+
+
+
 template <typename T, u32 Capacity> class Buffer
 {
 public:
@@ -290,3 +295,7 @@ private:
     Iterator begin_;
     Iterator end_;
 };
+
+
+
+}

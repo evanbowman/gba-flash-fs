@@ -1,5 +1,5 @@
 #include "platform/platform.hpp"
-#include "gba.h"
+#include "gba.hpp"
 #include "critical_section.hpp"
 #include "bootleg_cart.hpp"
 
@@ -10,6 +10,11 @@
 #ifndef __SKYLAND_SOURCE__
 #define info(PLATFORM, STRING)
 #endif
+
+
+
+namespace flash_filesystem
+{
 
 
 IrqState critical_section_enter()
@@ -248,12 +253,13 @@ void sram_load(void* dest, u32 offset, u32 length)
 
 
 static BootlegFlashType bootleg_flash_type = 0;
+static bool save_using_flash;
 
 
 
 bool Platform::write_save_data(const void* data, u32 length, u32 offset)
 {
-    if (get_gflag(GlobalFlag::save_using_flash)) {
+    if (save_using_flash) {
         return flash_save(data, offset, length);
     } else {
         sram_save(data, offset, length);
@@ -274,7 +280,7 @@ bool Platform::write_save_data(const void* data, u32 length, u32 offset)
 
 bool Platform::read_save_data(void* buffer, u32 data_length, u32 offset)
 {
-    if (get_gflag(GlobalFlag::save_using_flash)) {
+    if (save_using_flash) {
         flash_load(buffer, offset, data_length);
     } else {
         sram_load(buffer, offset, data_length);
@@ -287,7 +293,7 @@ bool Platform::read_save_data(void* buffer, u32 data_length, u32 offset)
 
 void Platform::erase_save_sector()
 {
-    if (not get_gflag(GlobalFlag::save_using_flash)) {
+    if (not save_using_flash) {
         u8* save_mem = (u8*)0x0E000000;
         // Simulate a flash erase.
         for (int i = 0; i < ::save_capacity; ++i) {
@@ -308,4 +314,57 @@ void Platform::erase_save_sector()
         info(*this, "flash erase!");
         bootleg_flash_erase(bootleg_flash_type);
     }
+}
+
+
+
+
+Platform::Platform()
+{
+    bootleg_flash_type = bootleg_get_flash_type();
+    switch (bootleg_flash_type) {
+    case 1:
+    case 2:
+    case 3:
+        bootleg_cart_init_sram(*this);
+        break;
+
+    default:
+        // NOT DETECTED
+        bootleg_flash_type = 0;
+        break;
+    }
+
+    // Explanation: read 32 bits from the beginning of sram, increment it, write
+    // it, and then read it back again. If we read the incremented value from
+    // sram, then sram writes worked. If not, assume flash. Then, write the
+    // original value back to sram.
+
+    u32 prev_entry;
+    sram_load(&prev_entry, 0, sizeof prev_entry);
+
+    static const u32 sram_test_const = prev_entry + 1;
+    sram_save(&sram_test_const, 0, sizeof sram_test_const);
+
+    u32 sram_test_result = prev_entry;
+    sram_load(&sram_test_result, 0, sizeof sram_test_result);
+
+    sram_save(&prev_entry, 0, sizeof prev_entry);
+
+    if (sram_test_result not_eq sram_test_const) {
+        save_using_flash = true;
+
+        ::save_capacity = flash_capacity(*this);
+    } else {
+        ::save_capacity = 32000;
+    }
+}
+
+
+Platform::~Platform()
+{
+
+}
+
+
 }

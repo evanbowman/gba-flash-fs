@@ -25,7 +25,8 @@
 #include "bitvector.hpp"
 #include "fnv.hpp"
 
-
+namespace flash_filesystem
+{
 
 template <u32 bits> class BloomFilter
 {
@@ -149,3 +150,4 @@ private:
 
     Bitvector<bits> bitset_;
 };
+}

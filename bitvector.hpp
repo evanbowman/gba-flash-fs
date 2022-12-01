@@ -26,6 +26,10 @@
 #include <array>
 
 
+
+namespace flash_filesystem
+{
+
 template <u32 bits> class Bitvector
 {
 public:
@@ -170,3 +174,4 @@ public:
 private:
     Bitvector<width * height> data_;
 };
+}

@@ -1,6 +1,10 @@
 #pragma once
 
-#include "number/int.h"
+#include "number/int.hpp"
+
+
+namespace flash_filesystem
+{
 
 
 
@@ -23,3 +27,7 @@ void bootleg_flash_erase(BootlegFlashType flash_type);
 
 
 void bootleg_cart_init_sram(Platform& pfrm);
+
+
+
+}

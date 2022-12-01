@@ -26,6 +26,9 @@
 #include <bit>
 #include <string.h>
 
+namespace flash_filesystem
+{
+
 // Because most processors are little endian, I am using little endian byte
 // order for binary encoded data.
 
@@ -171,3 +174,6 @@ using host_s16 = HostInteger<s16>;
 using host_s32 = HostInteger<s32>;
 using host_u64 = HostInteger<u64>;
 using host_s64 = HostInteger<s64>;
+
+
+}

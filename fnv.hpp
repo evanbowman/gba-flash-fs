@@ -22,8 +22,10 @@
 
 #pragma once
 
-#include "number/int.h"
+#include "number/int.hpp"
 
+namespace flash_filesystem
+{
 
 
 inline u32 fnv32(const char* data, u32 len)
@@ -36,4 +38,7 @@ inline u32 fnv32(const char* data, u32 len)
     }
 
     return hash;
+}
+
+
 }

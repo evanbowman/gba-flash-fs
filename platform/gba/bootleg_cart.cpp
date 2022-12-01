@@ -1,8 +1,17 @@
+
 #include "bootleg_cart.hpp"
 #include "critical_section.hpp"
-#include "gba.h"
+#include "gba.hpp"
 #include "platform/platform.hpp"
+#include <string.h>
 
+
+extern char __rom_end__;
+
+
+
+namespace flash_filesystem
+{
 
 
 // FIXME: I think bootleg carts actually support up to 64 * 1024 bytes of sram.
@@ -274,7 +283,6 @@ bool bootleg_flash_writeback(BootlegFlashType flash_type,
 
 
 
-extern char __rom_end__;
 extern int save_capacity;
 
 
@@ -289,6 +297,8 @@ static void bytecopy(u8* dest, u8* src, u32 size)
 
 void bootleg_cart_init_sram(Platform& pfrm)
 {
+    // NOTE: access to __rom_end__ may raise array bounds warnings. Ignore
+    // them. Yes, __rom_end__ obviously points past the end of rom.
     const u32 total_rom_size = u32(&__rom_end__ - 0x8000000);
     u32 flash_size = 0;
     flash_sram_area = 0;
@@ -317,4 +327,8 @@ void bootleg_cart_init_sram(Platform& pfrm)
 
     // Finally, restore the SRAM data and proceed.
     bytecopy(BOOTLEG_SRAM, ((u8*)AGB_ROM + flash_sram_area), save_capacity);
+}
+
+
+
 }

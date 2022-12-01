@@ -376,6 +376,24 @@ Root load_root(Platform& pfrm)
 
 
 
+Function<8, void(const char*)> log_callback([](const char*) {});
+
+
+
+void log(const char* msg)
+{
+    log_callback(&*msg);
+}
+
+
+
+void set_log_receiver(Function<8, void(const char*)> callback)
+{
+    log_callback = callback;
+}
+
+
+
 static void init_root(Platform& pfrm, Root& root)
 {
     memcpy(root.magic_, Root::magic_val, 8);
@@ -413,7 +431,7 @@ InitStatus initialize(Platform& pfrm, u32 offset)
         return initialized;
     }
 
-    info(pfrm, "flash fs found root...");
+    log("flash fs found root...");
 
     offset += sizeof(Root);
 
@@ -423,7 +441,7 @@ InitStatus initialize(Platform& pfrm, u32 offset)
     while (true) {
 
         if (offset % 2 not_eq 0) {
-            info(pfrm, "warning: bad filesystem alignment!");
+            log("bad filesystem alignment!");
         }
 
         Record r;
@@ -478,7 +496,7 @@ InitStatus initialize(Platform& pfrm, u32 offset)
         u8 val = 0;
         pfrm.read_save_data(&val, 1, i);
         if (val not_eq 0xff) {
-            info(pfrm, "trailing bits unexpectedly flipped!?");
+            log("trailing bits unexpectedly flipped!");
             reformat = true;
             break;
         }
@@ -490,11 +508,10 @@ InitStatus initialize(Platform& pfrm, u32 offset)
 
     __path_cache_create(pfrm);
 
-    info(pfrm,
-         format("flash fs init: begin: %, end: %, gaps: %",
-                start_offset,
-                end_offset,
-                gap_space));
+    // log(format("flash fs init, begin, %, end, %, gaps, %",
+    //            start_offset,
+    //            end_offset,
+    //            gap_space).c_str());
 
     return already_initialized;
 }
@@ -619,6 +636,9 @@ void unlink_file(Platform& pfrm, const char* path)
     if (freed) {
         __path_cache_destroy();
         __path_cache_create(pfrm);
+        log(format("unlinked %", path).c_str());
+    } else {
+        log(format("did not unlink %", path).c_str());
     }
 }
 
@@ -628,7 +648,7 @@ void unlink_file(Platform& pfrm, const char* path)
 // erase the flash sector, and write it back...
 static void compact(Platform& pfrm)
 {
-    info(pfrm, "flash fs start compaction...");
+    log("flash fs start compaction...");
 
     Vector<char> data;
 
@@ -724,7 +744,7 @@ static void compact(Platform& pfrm)
     Root root;
     init_root(pfrm, root);
 
-    info(pfrm, "flash fs completed compaction!");
+    log("flash fs completed compaction!");
 }
 
 
@@ -833,7 +853,7 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
         crc8 = crc8_table[((u8)c) ^ crc8];
     }
 
-    // info(pfrm, format("calculated crc %", crc8));
+    // log(format("calculated crc %", crc8));
 
     auto off = end_offset;
     static_assert(sizeof(Record) == sizeof(Record::FileInfo) + 2);
@@ -889,10 +909,12 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
         // and writes sram contents back to the flash device. Hopefully doing
         // this will free up any stuck bits.
 
-        info(pfrm, "bad flash checksum detected, rewriting sector...");
+        log("bad flash checksum detected, rewriting sector...");
 
         compact(pfrm);
     }
+
+    log(format("wrote %", path).c_str());
 
     return true;
 }

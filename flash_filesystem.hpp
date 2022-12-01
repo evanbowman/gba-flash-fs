@@ -30,15 +30,20 @@
 #include "function.hpp"
 #include "memory/buffer.hpp"
 #include "number/endian.hpp"
-#include "number/int.h"
+#include "number/int.hpp"
 #include "string.hpp"
 
 
 
-class Platform;
 
-
-
+// Brief explanation for why this library uses vector for holding file data: In
+// Skyland, I didn't use std::vector<T>, but instead, a custom container class
+// called Vector<T>. Skyland was unable to allocate large sections of contiguous
+// memory due to its unusual custom allocators, so I implemented a segmented
+// non-contiguous vector replacement. Vector<T> worked very well for this
+// library, but it's highly coupled with other classes in the skyland repo, so
+// I've just created an alias to std::vector<T> in this header for people who
+// want to use the library.
 #ifdef __SKYLAND_SOURCE__
 #ifndef __GBA__
 #include <fstream>
@@ -58,8 +63,6 @@ template <typename T> using Vector = std::vector<T>;
 #endif // __GBA__
 #else // not __SKYLAND_SOURCE__
 #include <vector>
-// NOTE: in the skyland source code, I have a custom container called
-// Vector<T>. This distribution of the library includes std::vector<T> instead.
 namespace flash_filesystem
 {
 template <typename T> using Vector = std::vector<T>;
@@ -70,6 +73,10 @@ template <typename T> using Vector = std::vector<T>;
 
 namespace flash_filesystem
 {
+
+
+
+class Platform;
 
 
 
@@ -204,6 +211,10 @@ bool file_exists(Platform& pfrm, const char* path);
 
 
 void destroy(Platform& pfrm);
+
+
+
+void set_log_receiver(Function<8, void(const char*)> callback);
 
 
 
