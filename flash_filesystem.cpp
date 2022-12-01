@@ -365,7 +365,7 @@ u32 sector_used()
 
 u32 sector_avail(Platform& pfrm)
 {
-    return pfrm.save_capacity() - end_offset;
+    return (pfrm.save_capacity() - start_offset) - sector_used();
 }
 
 
